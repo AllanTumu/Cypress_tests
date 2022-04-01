@@ -1,43 +1,34 @@
 /// <reference types="cypress" />
 
-/// it function accepts two parameters
-/// The cy object is the gateway to all cypress functionality
-describe('todo actions', ()=> {
-    // Open the todomvc app before each test
+import { TodoPage } from "../page-objects/todo-pageobject"
+
+describe('todo actions', () => {
+    //const todoPage = new TodoPage()
+    const todoPage = new TodoPage
     beforeEach(() => {
-        //Open page
-        cy.visit('http://todomvc-app-for-testing.surge.sh/')
-        //Enter new item to the list
-        cy.get('.new-todo', {timeout: 6000}).type('Learn cypress{Enter}')
-        
+        todoPage.navigate()
+
+        todoPage.addTodo('Clean room')
     })
 
-    it('should add a new item to list', () => {
-        
-        // Validate if element contains certain text
-        cy.get('label').should('have.text', 'Learn cypress')
-        // Verify that toogle is not checked
-        cy.get('.toggle').should('not.be.checked')
-    
+    it('should add a new todo to the list', () => {
+        todoPage.validateTodoText(0, 'Clean room')
+
+        todoPage.validateToggleState(0, false)
     })
-    
-    it('should mark todo as completed', () => {
-        //Mark task as done by clicking it
-        cy.get('.toggle').click()
-        // Verify that toggle was checket
-        cy.get('.toggle').should('be.checked')
-        // Verify that text decoration is line through
-        cy.get('label').should('have.css', 'text-decoration-line','line-through')
-    })
-    
-    it('should clear completed todos', () => {
-        //Mark task as done by clicking it
-        cy.get('.toggle').click()
-        //Clear list by clicking Clear completed
-        //We are using .contains and not .get
-        cy.contains('Clear complete').click()
-        //Validate that todo list doesn't have any item
-        cy.get('.todo-list').should('not.have.descendants','li')
+
+    describe('toggling todos', () => {
+        it('should toggle test correctly', () => {
+        todoPage.toggleTodo(0)
+        todoPage.validateTodoCompletedState(0, true)
+        })
+
+        it('should clear completed', () => {
+        todoPage.toggleTodo(0)
+
+        todoPage.clearCompleted()
+
+        todoPage.validateNumberOfTodosShown(0)
+        })
     })
 })
-
